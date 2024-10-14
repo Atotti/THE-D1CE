@@ -13,26 +13,7 @@ public class DieController : MonoBehaviour
 
     void Update()
     {
-        // 矢印キー入力に応じてサイコロを転がす
-        if (!isRolling)
-        {
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                StartCoroutine(Roll(Vector3.forward));
-            }
-            else if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                StartCoroutine(Roll(Vector3.back));
-            }
-            else if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                StartCoroutine(Roll(Vector3.left));
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                StartCoroutine(Roll(Vector3.right));
-            }
-        }
+        // サイコロ自体がユーザーから操作されない場合は、この部分は不要
     }
 
     // 初期位置を設定するメソッド
@@ -45,6 +26,16 @@ public class DieController : MonoBehaviour
         transform.position = initialPosition;
     }
 
+    // サイコロを転がすための公開メソッド
+    public void RollDie(Vector3 direction)
+    {
+        if (!isRolling)
+        {
+            StartCoroutine(Roll(direction));
+        }
+    }
+
+    // 転がりアニメーションを行うためのメソッド
     private System.Collections.IEnumerator Roll(Vector3 direction)
     {
         isRolling = true;

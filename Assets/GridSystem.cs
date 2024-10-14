@@ -8,13 +8,16 @@ public class GridSystem : MonoBehaviour
     public float cellSize = 1.0f;
 
     public GameObject diePrefab;       // サイコロのPrefab（Unityエディタで設定）
+    public GameObject characterPrefab; // キャラクターのPrefab
 
     private List<Vector2Int> usedPositions = new List<Vector2Int>(); // 使用済みの位置を記録するリスト
+    private List<GameObject> diceList = new List<GameObject>(); // 生成されたサイコロを保持
 
     void Start()
     {
         CreateGrid();
         PlaceRandomDice(16);
+        PlaceCharacterOnRandomDie();
     }
 
     void CreateGrid()
@@ -85,9 +88,35 @@ public class GridSystem : MonoBehaviour
             Vector3 diePosition = new Vector3(randomPosition.x * cellSize, 0.5f, randomPosition.y * cellSize);
 
             // サイコロを生成
-            Instantiate(diePrefab, diePosition, Quaternion.identity);
+            GameObject newDie = Instantiate(diePrefab, diePosition, Quaternion.identity);
 
             Debug.Log($"サイコロ {i + 1} を配置しました: 位置 {randomPosition}");
+
+            diceList.Add(newDie); // リストにサイコロを追加
+        }
+    }
+
+    void PlaceCharacterOnRandomDie()
+    {
+        // サイコロリストからランダムに1つを選ぶ
+        if (diceList.Count > 0)
+        {
+            int randomIndex = Random.Range(0, diceList.Count);
+            GameObject selectedDie = diceList[randomIndex];
+
+            // サイコロの上にキャラクターの位置を設定
+            float characterHeightOffset = selectedDie.transform.localScale.y / 2 + 1.0f; // サイコロの高さの半分 + キャラクターの高さの半分
+            Vector3 characterPosition = selectedDie.transform.position + new Vector3(0, characterHeightOffset, 0);
+
+            // キャラクターを生成
+            GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
+
+            // キャラクターに現在乗っているサイコロを設定
+            CharacterController characterController = character.GetComponent<CharacterController>();
+            if (characterController != null)
+            {
+                characterController.currentDie = selectedDie;
+            }
         }
     }
 }
