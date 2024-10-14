@@ -162,7 +162,7 @@ public class GridSystem : MonoBehaviour
             );
 
             int dieNumber = dieController.GetDieNumber(); // サイコロの目を取得
-            int matchCount = (dieNumber > 1) ? dieNumber : 2; // 1の場合は2つに設定
+            int matchCount = (dieNumber >= 2) ? dieNumber : 2; // 1の場合は2つに設定
 
             // 消える条件を満たした場合、隣接する同じ目のサイコロを削除リストに追加
             if (CheckMatches(currentPosition, dieNumber, matchCount))
