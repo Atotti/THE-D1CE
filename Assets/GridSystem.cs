@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GridSystem : MonoBehaviour
 {
@@ -6,9 +7,14 @@ public class GridSystem : MonoBehaviour
     public int gridSizeY = 16;
     public float cellSize = 1.0f;
 
+    public GameObject diePrefab;       // サイコロのPrefab（Unityエディタで設定）
+
+    private List<Vector2Int> usedPositions = new List<Vector2Int>(); // 使用済みの位置を記録するリスト
+
     void Start()
     {
         CreateGrid();
+        PlaceRandomDice(16);
     }
 
     void CreateGrid()
@@ -57,5 +63,31 @@ public class GridSystem : MonoBehaviour
         lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // 単純な色のためのシェーダー
         lineRenderer.startColor = Color.black; // 線の色
         lineRenderer.endColor = Color.black;
+    }
+
+    void PlaceRandomDice(int numberOfDice)
+    {
+        for (int i = 0; i < numberOfDice; i++)
+        {
+            Vector2Int randomPosition;
+
+            // 重複しない位置が見つかるまでランダムな座標を選ぶ
+            do
+            {
+                int x = Random.Range(0, gridSizeX);
+                int y = Random.Range(0, gridSizeY);
+                randomPosition = new Vector2Int(x, y);
+            } while (usedPositions.Contains(randomPosition));
+
+            usedPositions.Add(randomPosition);
+
+            // サイコロの位置を計算
+            Vector3 diePosition = new Vector3(randomPosition.x * cellSize, 0.5f, randomPosition.y * cellSize);
+
+            // サイコロを生成
+            Instantiate(diePrefab, diePosition, Quaternion.identity);
+
+            Debug.Log($"サイコロ {i + 1} を配置しました: 位置 {randomPosition}");
+        }
     }
 }

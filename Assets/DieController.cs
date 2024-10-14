@@ -8,7 +8,7 @@ public class DieController : MonoBehaviour
     // 初期化処理
     void Start()
     {
-        SetInitialPosition(5, 5);
+        // SetInitialPosition(5, 5); // 仮で5, 5にサイコロを設置
     }
 
     void Update()
