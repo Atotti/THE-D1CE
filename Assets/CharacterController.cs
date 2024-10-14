@@ -29,8 +29,8 @@ public class CharacterController : MonoBehaviour
 
         if (currentDie != null)
         {
-            // float characterHeightOffset = currentDie.transform.localScale.y / 2 + 1.0f;
-            // transform.position = currentDie.transform.position + new Vector3(0, characterHeightOffset, 0);
+            float characterHeightOffset = currentDie.transform.localScale.y / 2 + 1.0f;
+            transform.position = currentDie.transform.position + new Vector3(0, characterHeightOffset, 0);
         }
     }
 
