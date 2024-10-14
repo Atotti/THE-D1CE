@@ -4,9 +4,12 @@ public class CharacterController : MonoBehaviour
 {
     public GameObject currentDie;  // 現在乗っているサイコロ
     public GridSystem gridSystem;  // GridSystemへの参照
+    private bool isRolling = false; // サイコロが転がり中かどうか
 
     void Update()
     {
+        if (isRolling) return;
+
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             AttemptRoll(Vector3.forward);
@@ -26,8 +29,8 @@ public class CharacterController : MonoBehaviour
 
         if (currentDie != null)
         {
-            float characterHeightOffset = currentDie.transform.localScale.y / 2 + 1.0f;
-            transform.position = currentDie.transform.position + new Vector3(0, characterHeightOffset, 0);
+            // float characterHeightOffset = currentDie.transform.localScale.y / 2 + 1.0f;
+            // transform.position = currentDie.transform.position + new Vector3(0, characterHeightOffset, 0);
         }
     }
 
@@ -69,7 +72,11 @@ public class CharacterController : MonoBehaviour
                 DieController dieController = currentDie.GetComponent<DieController>();
                 if (dieController != null)
                 {
-                    dieController.RollDie(direction);
+                    isRolling = true; // 転がり開始
+                    dieController.character = this.gameObject; // キャラクターの参照を設定
+                    dieController.RollDie(direction, () => {
+                        isRolling = false; // 転がり終了
+                    });
                     gridSystem.UpdateDiePosition(currentDie, targetPosition);
                 }
             }
