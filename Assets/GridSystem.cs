@@ -11,7 +11,7 @@ public class GridSystem : MonoBehaviour
     public GameObject characterPrefab; // キャラクターのPrefab
 
     private List<Vector2Int> usedPositions = new List<Vector2Int>(); // 使用済みの位置を記録するリスト
-    private List<GameObject> diceList = new List<GameObject>(); // 生成されたサイコロを保持
+    public List<GameObject> diceList = new List<GameObject>(); // 生成されたサイコロを保持
 
     void Start()
     {
@@ -116,7 +116,27 @@ public class GridSystem : MonoBehaviour
             if (characterController != null)
             {
                 characterController.currentDie = selectedDie;
+                characterController.gridSystem = this; // GridSystemを参照
             }
         }
     }
+
+    // サイコロが指定位置に存在するか確認するメソッド
+    public bool IsPositionOccupied(Vector2Int position)
+    {
+        return usedPositions.Contains(position);
+    }
+
+    // サイコロの位置を更新するメソッド
+    public void UpdateDiePosition(GameObject die, Vector2Int newPosition)
+    {
+        Vector2Int oldPosition = new Vector2Int(
+            Mathf.RoundToInt(die.transform.position.x / cellSize),
+            Mathf.RoundToInt(die.transform.position.z / cellSize)
+        );
+
+        usedPositions.Remove(oldPosition);
+        usedPositions.Add(newPosition);
+    }
+
 }
