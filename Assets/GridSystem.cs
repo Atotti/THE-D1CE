@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 public class GridSystem : MonoBehaviour
 {
-    public int gridSizeX = 16;
-    public int gridSizeY = 16;
+    public int gridSizeX = 7;
+    public int gridSizeY = 7;
     public float cellSize = 1.0f;
 
     public GameObject diePrefab;       // サイコロのPrefab（Unityエディタで設定）
@@ -29,7 +29,7 @@ public class GridSystem : MonoBehaviour
                 // 各マスの中心位置を計算
                 Vector3 cellPosition = new Vector3(x * cellSize, 0, y * cellSize);
 
-                // 床を作成（Cubeで表現）
+                // 床を作成（Cubeで表現） TODO: 床のデザインも作る
                 GameObject cell = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cell.transform.position = cellPosition;
                 cell.transform.localScale = new Vector3(cellSize, 0.1f, cellSize);
