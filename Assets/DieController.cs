@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DieController : MonoBehaviour
 {
-    public float rollDuration = 0.5f; // サイコロが転がるのにかかる時間
+    public float rollDuration = 0.1f; // サイコロが転がるのにかかる時間
     private bool isRolling = false;   // 転がっている間は操作を受け付けない
     public GameObject character; // キャラクターの参照
     public bool isRemoving = false; // サイコロが消える途中かどうか

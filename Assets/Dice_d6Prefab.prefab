@@ -119,5 +119,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f14b71eea10af444a359cf055894274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rollDuration: 0.5
+  rollDuration: 0.1
   character: {fileID: 0}
+  isRemoving: 0
