@@ -44,11 +44,18 @@ public class CharacterController : MonoBehaviour
     {
         if (currentDie != null)
         {
-            AttemptRoll(direction);
+            DieController dieController = currentDie.GetComponent<DieController>();
+            if (dieController.isRemoving)
+            {
+                AttemptMoveOnRemovingDie(direction); // 消える途中のサイコロ上を移動する
+            } else
+            {
+                AttemptRoll(direction); // 通常状態 サイコロ上を移動する
+            }
         }
         else
         {
-            AttemptMoveOnGrid(direction);
+            AttemptMoveOnGrid(direction); // グリッド上を移動する
         }
     }
 
@@ -113,7 +120,7 @@ public class CharacterController : MonoBehaviour
 
         if (gridSystem.IsPositionOccupied(targetGridPosition))
         {
-            // キャラクターがサイコロに乗り換える
+            // キャラクターがサイコロに乗りなおす
             foreach (GameObject die in gridSystem.diceList)
             {
                 Vector2Int diePosition = new Vector2Int(
@@ -133,6 +140,45 @@ public class CharacterController : MonoBehaviour
         {
             // ターゲット位置にサイコロがない場合、Grid上を移動
             transform.position = targetPosition;
+        }
+    }
+
+    void AttemptMoveOnRemovingDie(Vector3 direction)
+    {
+        if (currentDie != null)
+        {
+            Vector2Int currentPosition = new Vector2Int(
+                Mathf.RoundToInt(currentDie.transform.position.x / gridSystem.cellSize),
+                Mathf.RoundToInt(currentDie.transform.position.z / gridSystem.cellSize)
+            );
+
+            Vector2Int targetPosition = currentPosition + new Vector2Int(
+                Mathf.RoundToInt(direction.x),
+                Mathf.RoundToInt(direction.z)
+            );
+
+            // ターゲット位置に既にサイコロがある場合
+            if (gridSystem.IsPositionOccupied(targetPosition))
+            {
+                // キャラクターが別のサイコロに乗り換える
+                foreach (GameObject die in gridSystem.diceList)
+                {
+                    Vector2Int diePosition = new Vector2Int(
+                        Mathf.RoundToInt(die.transform.position.x / gridSystem.cellSize),
+                        Mathf.RoundToInt(die.transform.position.z / gridSystem.cellSize)
+                    );
+
+                    if (diePosition == targetPosition)
+                    {
+                        currentDie = die;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // 消える途中のサイコロは転がらないのでサイコロが無いマスには移動できない
+            }
         }
     }
 
