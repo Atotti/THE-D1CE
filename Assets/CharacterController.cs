@@ -63,10 +63,7 @@ public class CharacterController : MonoBehaviour
     {
         if (currentDie != null)
         {
-            Vector2Int currentPosition = new Vector2Int(
-                Mathf.RoundToInt(currentDie.transform.position.x / gridSystem.cellSize),
-                Mathf.RoundToInt(currentDie.transform.position.z / gridSystem.cellSize)
-            );
+            Vector2Int currentPosition = gridSystem.GetGridPosition(currentDie.transform.position);
 
             Vector2Int targetPosition = currentPosition + new Vector2Int(
                 Mathf.RoundToInt(direction.x),
@@ -79,10 +76,7 @@ public class CharacterController : MonoBehaviour
                 // キャラクターが別のサイコロに乗り換える
                 foreach (GameObject die in gridSystem.diceList)
                 {
-                    Vector2Int diePosition = new Vector2Int(
-                        Mathf.RoundToInt(die.transform.position.x / gridSystem.cellSize),
-                        Mathf.RoundToInt(die.transform.position.z / gridSystem.cellSize)
-                    );
+                    Vector2Int diePosition = gridSystem.GetGridPosition(die.transform.position);
 
                     if (diePosition == targetPosition)
                     {
@@ -113,20 +107,14 @@ public class CharacterController : MonoBehaviour
         Vector3 targetPosition = transform.position + direction * gridSystem.cellSize;
 
         // ターゲット位置にサイコロがある場合
-        Vector2Int targetGridPosition = new Vector2Int(
-            Mathf.RoundToInt(targetPosition.x / gridSystem.cellSize),
-            Mathf.RoundToInt(targetPosition.z / gridSystem.cellSize)
-        );
+        Vector2Int targetGridPosition = gridSystem.GetGridPosition(targetPosition);
 
         if (gridSystem.IsPositionOccupied(targetGridPosition))
         {
             // キャラクターがサイコロに乗りなおす
             foreach (GameObject die in gridSystem.diceList)
             {
-                Vector2Int diePosition = new Vector2Int(
-                    Mathf.RoundToInt(die.transform.position.x / gridSystem.cellSize),
-                    Mathf.RoundToInt(die.transform.position.z / gridSystem.cellSize)
-                );
+                Vector2Int diePosition = gridSystem.GetGridPosition(die.transform.position);
 
                 if (diePosition == targetGridPosition)
                 {
@@ -147,10 +135,7 @@ public class CharacterController : MonoBehaviour
     {
         if (currentDie != null)
         {
-            Vector2Int currentPosition = new Vector2Int(
-                Mathf.RoundToInt(currentDie.transform.position.x / gridSystem.cellSize),
-                Mathf.RoundToInt(currentDie.transform.position.z / gridSystem.cellSize)
-            );
+            Vector2Int currentPosition = gridSystem.GetGridPosition(currentDie.transform.position);
 
             Vector2Int targetPosition = currentPosition + new Vector2Int(
                 Mathf.RoundToInt(direction.x),
@@ -163,10 +148,7 @@ public class CharacterController : MonoBehaviour
                 // キャラクターが別のサイコロに乗り換える
                 foreach (GameObject die in gridSystem.diceList)
                 {
-                    Vector2Int diePosition = new Vector2Int(
-                        Mathf.RoundToInt(die.transform.position.x / gridSystem.cellSize),
-                        Mathf.RoundToInt(die.transform.position.z / gridSystem.cellSize)
-                    );
+                    Vector2Int diePosition = gridSystem.GetGridPosition(die.transform.position);
 
                     if (diePosition == targetPosition)
                     {

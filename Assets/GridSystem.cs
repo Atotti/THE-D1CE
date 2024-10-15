@@ -10,7 +10,7 @@ public class GridSystem : MonoBehaviour
     public GameObject diePrefab;       // サイコロのPrefab（Unityエディタで設定）
     public GameObject characterPrefab; // キャラクターのPrefab
 
-    private List<Vector2Int> usedPositions = new List<Vector2Int>(); // 使用済みの位置を記録するリスト
+    private Dictionary<Vector2Int, GameObject> diePositions = new Dictionary<Vector2Int, GameObject>(); // 使用済みの位置を記録する辞書
     public List<GameObject> diceList = new List<GameObject>(); // 生成されたサイコロを保持
 
     void Start()
@@ -85,9 +85,7 @@ public class GridSystem : MonoBehaviour
                 int x = Random.Range(0, gridSizeX);
                 int y = Random.Range(0, gridSizeY);
                 randomPosition = new Vector2Int(x, y);
-            } while (usedPositions.Contains(randomPosition));
-
-            usedPositions.Add(randomPosition);
+            } while (diePositions.ContainsKey(randomPosition));
 
             // サイコロの位置を計算
             Vector3 diePosition = new Vector3(randomPosition.x * cellSize, 0.5f, randomPosition.y * cellSize);
@@ -98,7 +96,15 @@ public class GridSystem : MonoBehaviour
             Debug.Log($"サイコロ {i + 1} を配置しました: 位置 {randomPosition}");
 
             diceList.Add(newDie); // リストにサイコロを追加
+            diePositions.Add(randomPosition, newDie); // 位置とサイコロをマッピング
         }
+    }
+
+    public Vector2Int GetGridPosition(Vector3 position)
+    {
+        int x = Mathf.RoundToInt(position.x / cellSize);
+        int y = Mathf.RoundToInt(position.z / cellSize);
+        return new Vector2Int(x, y);
     }
 
     void PlaceCharacterOnRandomDie()
@@ -129,53 +135,16 @@ public class GridSystem : MonoBehaviour
     // サイコロが指定位置に存在するか確認するメソッド
     public bool IsPositionOccupied(Vector2Int position)
     {
-        return usedPositions.Contains(position);
+        return diePositions.ContainsKey(position);
     }
 
     // サイコロの位置を更新するメソッド
     public void UpdateDiePosition(GameObject die, Vector2Int newPosition)
     {
-        Vector2Int oldPosition = new Vector2Int(
-            Mathf.RoundToInt(die.transform.position.x / cellSize),
-            Mathf.RoundToInt(die.transform.position.z / cellSize)
-        );
+        Vector2Int oldPosition = GetGridPosition(die.transform.position);
 
-        usedPositions.Remove(oldPosition);
-        usedPositions.Add(newPosition);
-    }
-
-    void CheckMatchesAndRemove()
-    {
-        // 既に削除予定になっているサイコロを追跡するためのリスト
-        HashSet<GameObject> toBeRemoved = new HashSet<GameObject>();
-
-        foreach (GameObject die in diceList)
-        {
-            if (toBeRemoved.Contains(die)) continue; // 既に削除予定ならスキップ
-
-            DieController dieController = die.GetComponent<DieController>();
-            if (dieController == null || dieController.IsRolling()) continue; // サイコロが回転中ならスキップ
-
-            Vector2Int currentPosition = new Vector2Int(
-                Mathf.RoundToInt(die.transform.position.x / cellSize),
-                Mathf.RoundToInt(die.transform.position.z / cellSize)
-            );
-
-            int dieNumber = dieController.GetDieNumber(); // サイコロの目を取得
-            int matchCount = (dieNumber >= 2) ? dieNumber : 2; // 1の場合は2つに設定
-
-            // 消える条件を満たした場合、隣接する同じ目のサイコロを削除リストに追加
-            if (CheckMatches(currentPosition, dieNumber, matchCount))
-            {
-                RemoveConnectedDice(currentPosition, dieNumber, toBeRemoved);
-            }
-        }
-
-        // 削除予定のサイコロを順番に削除
-        foreach (GameObject die in toBeRemoved)
-        {
-            StartCoroutine(RemoveDieAnimation(die));
-        }
+        diePositions.Remove(oldPosition);
+        diePositions.Add(newPosition, die);
     }
 
     void RemoveConnectedDice(Vector2Int startPosition, int dieNumber, HashSet<GameObject> toBeRemoved)
@@ -188,7 +157,7 @@ public class GridSystem : MonoBehaviour
             Vector2Int position = stack.Pop();
 
             // この位置にサイコロがあり、まだ削除予定に入っていない場合
-            if (usedPositions.Contains(position) && GetDieNumberAtPosition(position) == dieNumber)
+            if (diePositions.ContainsKey(position) && GetDieNumberAtPosition(position) == dieNumber)
             {
                 GameObject die = GetDieAtPosition(position);
                 if (die != null && !toBeRemoved.Contains(die))
@@ -205,45 +174,42 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    // 消える条件判定関数 (DFS)
-    bool CheckMatches(Vector2Int position, int dieNumber, int matchCount)
+    // 消える条件判定関数
+    void CheckMatchesAndRemove()
     {
-        int horizontalCount = 1;
-        int verticalCount = 1;
+        // 既にチェックしたサイコロを追跡するためのセット
+        HashSet<GameObject> checkedDice = new HashSet<GameObject>();
+        HashSet<GameObject> toBeRemoved = new HashSet<GameObject>();
 
-        // 左右の隣接チェック
-        for (int i = 1; i < matchCount; i++)
+        foreach (GameObject die in diceList)
         {
-            Vector2Int leftPosition = new Vector2Int(position.x - i, position.y);
-            Vector2Int rightPosition = new Vector2Int(position.x + i, position.y);
+            if (checkedDice.Contains(die)) continue;
 
-            if (usedPositions.Contains(leftPosition) && GetDieNumberAtPosition(leftPosition) == dieNumber)
+            DieController dieController = die.GetComponent<DieController>();
+            if (dieController == null || dieController.IsRolling()) continue;
+
+            int dieNumber = dieController.GetDieNumber();
+            HashSet<GameObject> connectedDice = new HashSet<GameObject>();
+
+            // DFSで同じ目の隣接サイコロを探索
+            DFS(die, dieNumber, connectedDice, checkedDice);
+
+            int matchCount = Mathf.Max(dieNumber, 2); // 1の場合は2に設定
+
+            if (connectedDice.Count >= matchCount)
             {
-                horizontalCount++;
-            }
-            if (usedPositions.Contains(rightPosition) && GetDieNumberAtPosition(rightPosition) == dieNumber)
-            {
-                horizontalCount++;
+                foreach (GameObject d in connectedDice)
+                {
+                    toBeRemoved.Add(d);
+                }
             }
         }
 
-        // 上下の隣接チェック
-        for (int i = 1; i < matchCount; i++)
+        // 削除予定のサイコロを順番に削除
+        foreach (GameObject die in toBeRemoved)
         {
-            Vector2Int upPosition = new Vector2Int(position.x, position.y + i);
-            Vector2Int downPosition = new Vector2Int(position.x, position.y - i);
-
-            if (usedPositions.Contains(upPosition) && GetDieNumberAtPosition(upPosition) == dieNumber)
-            {
-                verticalCount++;
-            }
-            if (usedPositions.Contains(downPosition) && GetDieNumberAtPosition(downPosition) == dieNumber)
-            {
-                verticalCount++;
-            }
+            StartCoroutine(RemoveDieAnimation(die));
         }
-
-        return (horizontalCount >= matchCount || verticalCount >= matchCount);
     }
 
     int GetDieNumberAtPosition(Vector2Int position)
@@ -303,29 +269,57 @@ public class GridSystem : MonoBehaviour
 
         if (die != null)
         {
+            Vector2Int diePosition = GetGridPosition(die.transform.position);
+
             diceList.Remove(die);
-            usedPositions.Remove(new Vector2Int(
-                Mathf.RoundToInt(die.transform.position.x / cellSize),
-                Mathf.RoundToInt(die.transform.position.z / cellSize)
-            ));
+            diePositions.Remove(diePosition);
+
             Destroy(die);
         }
     }
 
     GameObject GetDieAtPosition(Vector2Int position)
     {
-        foreach (GameObject die in diceList)
+        if (diePositions.TryGetValue(position, out GameObject die))
         {
-            Vector2Int diePosition = new Vector2Int(
-                Mathf.RoundToInt(die.transform.position.x / cellSize),
-                Mathf.RoundToInt(die.transform.position.z / cellSize)
-            );
-
-            if (diePosition == position)
-            {
-                return die;
-            }
+            return die;
         }
         return null;
+    }
+
+    void DFS(GameObject die, int dieNumber, HashSet<GameObject> connectedDice, HashSet<GameObject> checkedDice)
+    {
+        connectedDice.Add(die);
+        checkedDice.Add(die);
+
+        Vector2Int position = GetGridPosition(die.transform.position);
+
+        // 上下左右の方向
+        Vector2Int[] directions = new Vector2Int[]
+        {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
+
+        foreach (Vector2Int dir in directions)
+        {
+            Vector2Int newPos = position + dir;
+            if (diePositions.ContainsKey(newPos))
+            {
+                GameObject adjacentDie = diePositions[newPos];
+                if (checkedDice.Contains(adjacentDie)) continue;
+
+                DieController adjacentDieController = adjacentDie.GetComponent<DieController>();
+                if (adjacentDieController != null && !adjacentDieController.IsRolling())
+                {
+                    if (adjacentDieController.GetDieNumber() == dieNumber)
+                    {
+                        DFS(adjacentDie, dieNumber, connectedDice, checkedDice);
+                    }
+                }
+            }
+        }
     }
 }
