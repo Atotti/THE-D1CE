@@ -205,13 +205,14 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    // 消える条件判定関数 (DFS)
     bool CheckMatches(Vector2Int position, int dieNumber, int matchCount)
     {
         int horizontalCount = 1;
         int verticalCount = 1;
 
         // 左右の隣接チェック
-        for (int i=1; i < matchCount; i++)
+        for (int i = 1; i < matchCount; i++)
         {
             Vector2Int leftPosition = new Vector2Int(position.x - i, position.y);
             Vector2Int rightPosition = new Vector2Int(position.x + i, position.y);
@@ -247,20 +248,16 @@ public class GridSystem : MonoBehaviour
 
     int GetDieNumberAtPosition(Vector2Int position)
     {
-        foreach (GameObject die in diceList)
+        GameObject die = GetDieAtPosition(position);
+        if (die != null)
         {
-            Vector2Int diePosition = new Vector2Int(
-                Mathf.RoundToInt(die.transform.position.x / cellSize),
-                Mathf.RoundToInt(die.transform.position.z / cellSize)
-            );
-
-            if (diePosition == position)
+            DieController dieController = die.GetComponent<DieController>();
+            if (dieController != null)
             {
-                DieController dieController = die.GetComponent<DieController>();
-                return dieController.GetDieNumber(); // サイコロの目の値を返す
+                return dieController.GetDieNumber();
             }
         }
-        return -1;
+        return -1; // サイコロがない場合やエラーの場合は -1 を返す
     }
 
     private System.Collections.IEnumerator WaitForFrames(int frameCount)
