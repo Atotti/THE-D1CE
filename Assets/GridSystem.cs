@@ -274,13 +274,20 @@ public class GridSystem : MonoBehaviour
     private System.Collections.IEnumerator RemoveDieAnimation(GameObject die)
     {
         Renderer renderer = die.GetComponent<Renderer>();
+        DieController dieController = die.GetComponent<DieController>();
+
+        if (dieController != null)
+        {
+            dieController.isRemoving = true; // アニメーション開始時にフラグを設定
+        }
+
         if (renderer != null)
         {
             renderer.material.color = Color.red; // 色を赤に変更
         }
 
-        // ここで5フレーム待機
-    yield return StartCoroutine(WaitForFrames(30));
+        // ここで30フレーム待機
+        yield return StartCoroutine(WaitForFrames(30));
 
         float elapsedTime = 0;
         float sinkDuration = 10.0f; // 沈むのにかかる時間
@@ -294,12 +301,18 @@ public class GridSystem : MonoBehaviour
             yield return null;
         }
 
-        diceList.Remove(die);
-        usedPositions.Remove(new Vector2Int(
-            Mathf.RoundToInt(die.transform.position.x / cellSize),
-            Mathf.RoundToInt(die.transform.position.z / cellSize)
-        ));
-        Destroy(die);
+        // サイコロが完全に沈んだ後に1秒待機
+        yield return new WaitForSeconds(1.0f);
+
+        if (die != null)
+        {
+            diceList.Remove(die);
+            usedPositions.Remove(new Vector2Int(
+                Mathf.RoundToInt(die.transform.position.x / cellSize),
+                Mathf.RoundToInt(die.transform.position.z / cellSize)
+            ));
+            Destroy(die);
+        }
     }
 
     GameObject GetDieAtPosition(Vector2Int position)
