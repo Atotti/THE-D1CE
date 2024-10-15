@@ -69,6 +69,11 @@ public class DieController : MonoBehaviour
         return faceValues[0]; // 上面の値を返す;
     }
 
+    public bool IsRolling()
+    {
+        return isRolling;
+    }
+
     // サイコロを転がすための公開メソッド
     public void RollDie(Vector3 direction, System.Action onComplete)
     {

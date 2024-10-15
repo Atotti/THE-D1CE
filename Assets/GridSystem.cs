@@ -154,7 +154,7 @@ public class GridSystem : MonoBehaviour
             if (toBeRemoved.Contains(die)) continue; // 既に削除予定ならスキップ
 
             DieController dieController = die.GetComponent<DieController>();
-            if (dieController == null) continue;
+            if (dieController == null || dieController.IsRolling()) continue; // サイコロが回転中ならスキップ
 
             Vector2Int currentPosition = new Vector2Int(
                 Mathf.RoundToInt(die.transform.position.x / cellSize),
@@ -263,6 +263,14 @@ public class GridSystem : MonoBehaviour
         return -1;
     }
 
+    private System.Collections.IEnumerator WaitForFrames(int frameCount)
+    {
+        for (int i = 0; i < frameCount; i++)
+        {
+            yield return null;
+        }
+    }
+
     private System.Collections.IEnumerator RemoveDieAnimation(GameObject die)
     {
         Renderer renderer = die.GetComponent<Renderer>();
@@ -270,6 +278,9 @@ public class GridSystem : MonoBehaviour
         {
             renderer.material.color = Color.red; // 色を赤に変更
         }
+
+        // ここで5フレーム待機
+    yield return StartCoroutine(WaitForFrames(30));
 
         float elapsedTime = 0;
         float sinkDuration = 10.0f; // 沈むのにかかる時間
