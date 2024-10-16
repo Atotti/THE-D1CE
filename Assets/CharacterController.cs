@@ -1,10 +1,18 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterController : MonoBehaviour
 {
     public GameObject currentDie;  // 現在乗っているサイコロ
     public GridSystem gridSystem;  // GridSystemへの参照
     private bool isRolling = false; // サイコロが転がり中かどうか
+    public Text dieNumberText; // UIテキストの参照
+
+    void Start()
+    {
+        // タグを使ってTextオブジェクトを取得
+        dieNumberText = GameObject.FindGameObjectWithTag("DieNumberText").GetComponent<Text>();
+    }
 
     void Update()
     {
@@ -37,6 +45,17 @@ public class CharacterController : MonoBehaviour
         {
             float characterHeightOffset = currentDie.transform.localScale.y / 2 + 1.0f;
             transform.position = currentDie.transform.position + new Vector3(0, characterHeightOffset, 0);
+
+            // サイコロの数の目を取得してUIテキストを更新
+            DieController dieController = currentDie.GetComponent<DieController>();
+            if (dieController != null)
+            {
+                int dieNumber = dieController.GetDieNumber();
+                dieNumberText.text = "Current Die Number: " + dieNumber;
+            }
+        } else
+        {
+            dieNumberText.text = "Not on a die";
         }
     }
 

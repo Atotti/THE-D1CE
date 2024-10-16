@@ -8,17 +8,17 @@ public class DieController : MonoBehaviour
     public bool isRemoving = false; // サイコロが消える途中かどうか
 
     // サイコロの各面の数値を保持
-    private int[] faceValues = new int[6]; // 0: 上, 1: 下, 2: 前, 3: 後ろ, 4: 左, 5: 右
+    private int[] faceValues = new int[6];
 
     void Start()
     {
         // 初期状態を設定（上が2の目とする）
-        faceValues[0] = 2; // 上
-        faceValues[1] = 5; // 下
-        faceValues[2] = 4; // 前
-        faceValues[3] = 3; // 後ろ
-        faceValues[4] = 1; // 左
-        faceValues[5] = 6; // 右
+        faceValues[0] = 2; // top
+        faceValues[1] = 5; // bottom
+        faceValues[2] = 1; // forward 操作のとき top がこれに変化する。実際には ↓ 側の目の数
+        faceValues[3] = 6; // back    操作のとき top がこれに変化する。実際には ↑ 側の目の数
+        faceValues[4] = 3; // left    操作のとき top がこれに変化する。実際には → 側の目の数
+        faceValues[5] = 4; // right   操作のとき top がこれに変化する。実際には ← 側の目の数
 
         // サイコロをランダムに回転させる
         RandomlyRotateDie();
@@ -131,38 +131,38 @@ public class DieController : MonoBehaviour
     {
         int top = faceValues[0];
         int bottom = faceValues[1];
-        int front = faceValues[2];
+        int forward = faceValues[2];
         int back = faceValues[3];
         int left = faceValues[4];
         int right = faceValues[5];
 
-        if (direction == Vector3.forward) // 前に転がる
+        if (direction == Vector3.forward) // forward操作
         {
-            faceValues[0] = back;  // 上 -> 後ろ
-            faceValues[1] = front; // 下 -> 前
-            faceValues[2] = top;   // 前 -> 上
-            faceValues[3] = bottom; // 後ろ -> 下
+            faceValues[0] = back;  // top -> back
+            faceValues[1] = forward; // bottom -> forward
+            faceValues[2] = top;   // 基準操作 forward -> top
+            faceValues[3] = bottom; // back -> bottom
         }
-        else if (direction == Vector3.back) // 後ろに転がる
+        else if (direction == Vector3.back) // back操作
         {
-            faceValues[0] = front;  // 上 -> 前
-            faceValues[1] = back;   // 下 -> 後ろ
-            faceValues[2] = bottom; // 前 -> 下
-            faceValues[3] = top;    // 後ろ -> 上
+            faceValues[0] = forward;  // top -> forward
+            faceValues[1] = back;   // bottom -> back
+            faceValues[2] = bottom; // forward -> bottom
+            faceValues[3] = top;    // 基準操作 back -> top
         }
-        else if (direction == Vector3.left) // 左に転がる
+        else if (direction == Vector3.left) // left操作
         {
             faceValues[0] = right;  // 上 -> 右
             faceValues[1] = left;   // 下 -> 左
-            faceValues[4] = top;    // 左 -> 上
+            faceValues[4] = top;    // 基準操作 left -> top
             faceValues[5] = bottom; // 右 -> 下
         }
-        else if (direction == Vector3.right) // 右に転がる
+        else if (direction == Vector3.right) // right操作
         {
             faceValues[0] = left;   // 上 -> 左
             faceValues[1] = right;  // 下 -> 右
             faceValues[4] = bottom; // 左 -> 下
-            faceValues[5] = top;    // 右 -> 上
+            faceValues[5] = top;    // 基準操作 right -> top
         }
     }
 }
