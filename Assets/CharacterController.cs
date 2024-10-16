@@ -61,25 +61,37 @@ public class CharacterController : MonoBehaviour
 
     void AttemptMove(Vector3 direction)
     {
-        if (currentDie != null)
+        Vector3 targetPosition = transform.position + direction * gridSystem.cellSize;
+        Vector2Int targetGridPosition = gridSystem.GetGridPosition(targetPosition);
+
+        if (IsWithinGridBounds(targetGridPosition)) // グリッドの範囲外に出ないかどうか
         {
-            DieController dieController = currentDie.GetComponent<DieController>();
-            if (dieController.isRemoving)
+            if (currentDie != null)
             {
-                AttemptMoveOnRemovingDie(direction); // 消える途中のサイコロ上を移動する
-            if (dieController.isSpawning)
-            {
-                AttemptMoveOnRemovingDie(direction); // 生成途中のサイコロ上の移動も消える途中と同じにする
+                DieController dieController = currentDie.GetComponent<DieController>();
+                if (dieController.isRemoving)
+                {
+                    AttemptMoveOnRemovingDie(direction); // 消える途中のサイコロ上を移動する
+                if (dieController.isSpawning)
+                {
+                    AttemptMoveOnRemovingDie(direction); // 生成途中のサイコロ上の移動も消える途中と同じにする
+                }
+                } else
+                {
+                    AttemptRoll(direction); // 通常状態 サイコロ上を移動する
+                }
             }
-            } else
+            else
             {
-                AttemptRoll(direction); // 通常状態 サイコロ上を移動する
+                AttemptMoveOnGrid(direction); // グリッド上を移動する
             }
         }
-        else
-        {
-            AttemptMoveOnGrid(direction); // グリッド上を移動する
-        }
+    }
+
+    private bool IsWithinGridBounds(Vector2Int position)
+    {
+        return position.x >= 0 && position.x < gridSystem.gridSizeX &&
+               position.y >= 0 && position.y < gridSystem.gridSizeY;
     }
 
     void AttemptRoll(Vector3 direction)
