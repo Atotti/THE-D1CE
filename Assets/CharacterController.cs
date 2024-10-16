@@ -67,6 +67,10 @@ public class CharacterController : MonoBehaviour
             if (dieController.isRemoving)
             {
                 AttemptMoveOnRemovingDie(direction); // 消える途中のサイコロ上を移動する
+            if (dieController.isSpawning)
+            {
+                AttemptMoveOnRemovingDie(direction); // 生成途中のサイコロ上の移動も消える途中と同じにする
+            }
             } else
             {
                 AttemptRoll(direction); // 通常状態 サイコロ上を移動する

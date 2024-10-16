@@ -16,8 +16,11 @@ public class GridSystem : MonoBehaviour
     void Start()
     {
         CreateGrid();
-        PlaceRandomDice(16);
+        PlaceRandomDice(16, true);
         PlaceCharacterOnRandomDie();
+
+        // 一定時間ごとにサイコロを生成する
+        InvokeRepeating("PlaceRandomDiceWrapper", 10f, 5f); // 5秒ごとに実行
     }
 
     void Update()
@@ -73,7 +76,7 @@ public class GridSystem : MonoBehaviour
         lineRenderer.endColor = Color.black;
     }
 
-    void PlaceRandomDice(int numberOfDice)
+    void PlaceRandomDice(int numberOfDice, bool init)
     {
         for (int i = 0; i < numberOfDice; i++)
         {
@@ -97,7 +100,58 @@ public class GridSystem : MonoBehaviour
 
             diceList.Add(newDie); // リストにサイコロを追加
             diePositions.Add(randomPosition, newDie); // 位置とサイコロをマッピング
+
+            if (!init)
+            {
+                // アニメーションを開始
+                StartCoroutine(SpawnDiceAnimation(newDie));
+            }
         }
+    }
+
+    private System.Collections.IEnumerator SpawnDiceAnimation(GameObject die)
+    {
+        float duration = 5.0f; // アニメーションの長さ
+        float elapsed = 0f;
+
+        Renderer renderer = die.GetComponent<Renderer>();
+        DieController dieController = die.GetComponent<DieController>();
+
+        if (dieController != null)
+        {
+            dieController.isSpawning = true; // アニメーション開始時にフラグを設定
+        }
+
+        if (renderer != null)
+        {
+            renderer.material.color = Color.blue; // 色を青に変更
+        }
+
+        Vector3 startPosition = die.transform.position - Vector3.up * 1f; // 1ユニット下から開始
+        Vector3 endPosition = die.transform.position;
+
+        while (elapsed < duration)
+        {
+            die.transform.position = Vector3.Lerp(startPosition, endPosition, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        die.transform.position = endPosition; // 最終位置を設定
+        if (renderer != null)
+        {
+            renderer.material.color = Color.white; // 色を白に変更
+        }
+
+        if (dieController != null)
+        {
+            dieController.isSpawning = false; // アニメーション終了時にフラグを更新
+        }
+    }
+
+    // 後から生えてくるサイコロを生成
+    void PlaceRandomDiceWrapper() {
+        PlaceRandomDice(1, false);
     }
 
     public Vector2Int GetGridPosition(Vector3 position)

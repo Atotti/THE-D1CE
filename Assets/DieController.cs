@@ -6,6 +6,7 @@ public class DieController : MonoBehaviour
     private bool isRolling = false;   // 転がっている間は操作を受け付けない
     public GameObject character; // キャラクターの参照
     public bool isRemoving = false; // サイコロが消える途中かどうか
+    public bool isSpawning = false; // サイコロがSpawn途中かどうか
 
     // サイコロの各面の数値を保持
     private int[] faceValues = new int[6];
@@ -77,7 +78,7 @@ public class DieController : MonoBehaviour
     // サイコロを転がすための公開メソッド
     public void RollDie(Vector3 direction, System.Action onComplete)
     {
-        if (!isRolling && !isRemoving)
+        if (!isRolling && !isRemoving && !isSpawning)
         {
             StartCoroutine(Roll(direction, onComplete));
         }
