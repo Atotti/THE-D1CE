@@ -69,13 +69,9 @@ public class CharacterController : MonoBehaviour
             if (currentDie != null)
             {
                 DieController dieController = currentDie.GetComponent<DieController>();
-                if (dieController.isRemoving)
+                if (dieController.isRemoving || dieController.isSpawning)
                 {
-                    AttemptMoveOnRemovingDie(direction); // 消える途中のサイコロ上を移動する
-                if (dieController.isSpawning)
-                {
-                    AttemptMoveOnRemovingDie(direction); // 生成途中のサイコロ上の移動も消える途中と同じにする
-                }
+                    AttemptMoveOnRemovingDie(direction); // 転がらずにサイコロ上を移動する
                 } else
                 {
                     AttemptRoll(direction); // 通常状態 サイコロ上を移動する
@@ -194,7 +190,7 @@ public class CharacterController : MonoBehaviour
             }
             else
             {
-                // 消える途中のサイコロは転がらないのでサイコロが無いマスには移動できない
+                // 消える途中のサイコロは転がらないので移動できない
             }
         }
     }
