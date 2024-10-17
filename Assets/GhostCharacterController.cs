@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharacterController : MonoBehaviour
+public class GhostCharacterController : MonoBehaviour
 {
     public GameObject currentDie;  // 現在乗っているサイコロ
     public GridSystem gridSystem;  // GridSystemへの参照
@@ -11,7 +11,10 @@ public class CharacterController : MonoBehaviour
     void Start()
     {
         // タグを使ってTextオブジェクトを取得
-        dieNumberText = GameObject.FindGameObjectWithTag("DieNumberText").GetComponent<Text>();
+        if (dieNumberText == null)
+        {
+            dieNumberText = GameObject.FindGameObjectWithTag("DieNumberText").GetComponent<Text>();
+        }
     }
 
     void Update()
@@ -35,11 +38,19 @@ public class CharacterController : MonoBehaviour
             AttemptMove(Vector3.right);
         }
 
-        if (!IsCharacterOnGrid(this.gameObject))
+        if (gridSystem == null)
+        {
+            gridSystem = FindObjectOfType<GridSystem>();
+            if (gridSystem == null)
+            {
+                Debug.LogError("GridSystem is not found in the scene.");
+            }
+        }
+
+        if (gridSystem != null && !IsCharacterOnGrid(this.gameObject))
         {
             currentDie = null;
         }
-
 
         if (currentDie != null)
         {
@@ -61,6 +72,12 @@ public class CharacterController : MonoBehaviour
 
     void AttemptMove(Vector3 direction)
     {
+        if (gridSystem == null)
+        {
+            Debug.LogError("GridSystem is not assigned.");
+            return;
+        }
+
         Vector3 targetPosition = transform.position + direction * gridSystem.cellSize;
         Vector2Int targetGridPosition = gridSystem.GetGridPosition(targetPosition);
 
@@ -69,12 +86,16 @@ public class CharacterController : MonoBehaviour
             if (currentDie != null)
             {
                 DieController dieController = currentDie.GetComponent<DieController>();
-                if (dieController.isRemoving || dieController.isSpawning)
+                if (dieController != null)
                 {
-                    AttemptMoveOnRemovingDie(direction); // 転がらずにサイコロ上を移動する
-                } else
-                {
-                    AttemptRoll(direction); // 通常状態 サイコロ上を移動する
+                    if (dieController.isRemoving || dieController.isSpawning)
+                    {
+                        AttemptMoveOnRemovingDie(direction); // 転がらずにサイコロ上を移動する
+                    }
+                    else
+                    {
+                        AttemptRoll(direction); // 通常状態 サイコロ上を移動する
+                    }
                 }
             }
             else
@@ -105,16 +126,7 @@ public class CharacterController : MonoBehaviour
             if (gridSystem.IsPositionOccupied(targetPosition))
             {
                 // キャラクターが別のサイコロに乗り換える
-                foreach (GameObject die in gridSystem.diceList)
-                {
-                    Vector2Int diePosition = gridSystem.GetGridPosition(die.transform.position);
-
-                    if (diePosition == targetPosition)
-                    {
-                        currentDie = die;
-                        break;
-                    }
-                }
+                currentDie = gridSystem.GetDieAtPosition(targetPosition);
             }
             else
             {
@@ -143,17 +155,9 @@ public class CharacterController : MonoBehaviour
         if (gridSystem.IsPositionOccupied(targetGridPosition))
         {
             // キャラクターがサイコロに乗りなおす
-            foreach (GameObject die in gridSystem.diceList)
-            {
-                Vector2Int diePosition = gridSystem.GetGridPosition(die.transform.position);
-
-                if (diePosition == targetGridPosition)
-                {
-                    currentDie = die;
-                    transform.position = die.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
-                    break;
-                }
-            }
+            GameObject targetDie = gridSystem.GetDieAtPosition(targetGridPosition);
+            currentDie = targetDie;
+            transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
         }
         else
         {
@@ -162,6 +166,7 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+    // 削除途中 または Spawn途中のサイコロ上の移動
     void AttemptMoveOnRemovingDie(Vector3 direction)
     {
         if (currentDie != null)
@@ -176,22 +181,18 @@ public class CharacterController : MonoBehaviour
             // ターゲット位置に既にサイコロがある場合
             if (gridSystem.IsPositionOccupied(targetPosition))
             {
-                // キャラクターが別のサイコロに乗り換える
-                foreach (GameObject die in gridSystem.diceList)
-                {
-                    Vector2Int diePosition = gridSystem.GetGridPosition(die.transform.position);
-
-                    if (diePosition == targetPosition)
-                    {
-                        currentDie = die;
-                        break;
-                    }
-                }
+                // キャラクターがサイコロに乗りなおす
+                GameObject targetDie = gridSystem.GetDieAtPosition(targetPosition);
+                currentDie = targetDie;
+                transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
             }
             else
             {
                 // 消える途中のサイコロは転がらないので移動できない
             }
+        } else
+        {
+
         }
     }
 

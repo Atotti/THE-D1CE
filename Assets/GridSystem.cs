@@ -14,7 +14,6 @@ public class GridSystem : MonoBehaviour
     public AudioSource audioSourceRemove;
 
     private Dictionary<Vector2Int, GameObject> diePositions = new Dictionary<Vector2Int, GameObject>(); // 使用済みの位置を記録する辞書
-    public List<GameObject> diceList = new List<GameObject>(); // 生成されたサイコロを保持
 
     void Start()
     {
@@ -101,7 +100,6 @@ public class GridSystem : MonoBehaviour
 
             Debug.Log($"サイコロ {i + 1} を配置しました: 位置 {randomPosition}");
 
-            diceList.Add(newDie); // リストにサイコロを追加
             diePositions.Add(randomPosition, newDie); // 位置とサイコロをマッピング
 
             if (!init)
@@ -172,11 +170,12 @@ public class GridSystem : MonoBehaviour
 
     void PlaceCharacterOnRandomDie()
     {
-        // サイコロリストからランダムに1つを選ぶ
-        if (diceList.Count > 0)
+        // サイコロの位置リストからランダムに1つを選ぶ
+        if (diePositions.Count > 0)
         {
-            int randomIndex = Random.Range(0, diceList.Count);
-            GameObject selectedDie = diceList[randomIndex];
+            List<GameObject> diceListTmp = new List<GameObject>(diePositions.Values);
+            int randomIndex = Random.Range(0, diceListTmp.Count);
+            GameObject selectedDie = diceListTmp[randomIndex];
 
             // サイコロの上にキャラクターの位置を設定
             float characterHeightOffset = selectedDie.transform.localScale.y / 2 + 1.0f; // サイコロの高さの半分 + キャラクターの高さの半分
@@ -186,7 +185,7 @@ public class GridSystem : MonoBehaviour
             GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
 
             // キャラクターに現在乗っているサイコロを設定
-            CharacterController characterController = character.GetComponent<CharacterController>();
+            GhostCharacterController characterController = character.GetComponent<GhostCharacterController>();
             if (characterController != null)
             {
                 characterController.currentDie = selectedDie;
@@ -244,7 +243,7 @@ public class GridSystem : MonoBehaviour
         HashSet<GameObject> checkedDice = new HashSet<GameObject>();
         HashSet<GameObject> toBeRemoved = new HashSet<GameObject>();
 
-        foreach (GameObject die in diceList)
+        foreach (GameObject die in diePositions.Values)
         {
             if (checkedDice.Contains(die)) continue;
 
@@ -329,25 +328,24 @@ public class GridSystem : MonoBehaviour
         while (elapsedTime < sinkDuration)
         {
             elapsedTime += Time.deltaTime;
-            die.transform.position = Vector3.Lerp(startPosition, endPosition, elapsedTime / sinkDuration);
+            if (die != null)
+            {
+                die.transform.position = Vector3.Lerp(startPosition, endPosition, elapsedTime / sinkDuration);
+            }
             yield return null;
         }
-
-        // サイコロが完全に沈んだ後に1秒待機
-        yield return new WaitForSeconds(1.0f);
 
         if (die != null)
         {
             Vector2Int diePosition = GetGridPosition(die.transform.position);
 
-            diceList.Remove(die);
             diePositions.Remove(diePosition);
 
             Destroy(die);
         }
     }
 
-    GameObject GetDieAtPosition(Vector2Int position)
+    public GameObject GetDieAtPosition(Vector2Int position)
     {
         if (diePositions.TryGetValue(position, out GameObject die))
         {
