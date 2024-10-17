@@ -24,18 +24,22 @@ public class GhostCharacterController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             AttemptMove(Vector3.forward);
+            transform.rotation = Quaternion.Euler(0, 0, 0);
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             AttemptMove(Vector3.back);
+            transform.rotation = Quaternion.Euler(0, 180, 0);
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             AttemptMove(Vector3.left);
+            transform.rotation = Quaternion.Euler(0, 270, 0);
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             AttemptMove(Vector3.right);
+            transform.rotation = Quaternion.Euler(0, 90, 0);
         }
 
         if (gridSystem == null)
@@ -68,6 +72,8 @@ public class GhostCharacterController : MonoBehaviour
         {
             dieNumberText.text = "Not on a die";
         }
+
+        transform.position = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
     }
 
     void AttemptMove(Vector3 direction)

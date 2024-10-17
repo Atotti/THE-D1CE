@@ -123,8 +123,7 @@ public class DieController : MonoBehaviour
             // キャラクターの位置を更新
             if (character != null)
             {
-                float characterHeightOffset = transform.localScale.y / 2 + 1.0f;
-                character.transform.position = transform.position + new Vector3(0, characterHeightOffset, 0);
+                character.transform.position = transform.position + new Vector3(0, 0.5f, 0);
             }
             yield return null;
         }
