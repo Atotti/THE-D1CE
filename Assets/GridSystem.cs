@@ -10,6 +10,9 @@ public class GridSystem : MonoBehaviour
     public GameObject diePrefab;       // サイコロのPrefab（Unityエディタで設定）
     public GameObject characterPrefab; // キャラクターのPrefab
 
+    public AudioSource audioSourceSpawn; // AudioSourceの参照
+    public AudioSource audioSourceRemove;
+
     private Dictionary<Vector2Int, GameObject> diePositions = new Dictionary<Vector2Int, GameObject>(); // 使用済みの位置を記録する辞書
     public List<GameObject> diceList = new List<GameObject>(); // 生成されたサイコロを保持
 
@@ -20,7 +23,7 @@ public class GridSystem : MonoBehaviour
         PlaceCharacterOnRandomDie();
 
         // 一定時間ごとにサイコロを生成する
-        InvokeRepeating("PlaceRandomDiceWrapper", 10f, 5f); // 5秒ごとに実行
+        InvokeRepeating("PlaceRandomDiceWrapper", 0f, 5f); // 5秒ごとに実行
     }
 
     void Update()
@@ -116,6 +119,12 @@ public class GridSystem : MonoBehaviour
 
         Renderer renderer = die.GetComponent<Renderer>();
         DieController dieController = die.GetComponent<DieController>();
+
+        // 効果音再生
+        if (audioSourceSpawn != null)
+        {
+            audioSourceSpawn.Play();
+        }
 
         if (dieController != null)
         {
@@ -293,8 +302,14 @@ public class GridSystem : MonoBehaviour
         Renderer renderer = die.GetComponent<Renderer>();
         DieController dieController = die.GetComponent<DieController>();
 
+
         if (dieController != null)
         {
+            // 効果音再生
+            if (audioSourceRemove != null && !dieController.isRemoving) // サイコロあたり 1 回のみ再生
+            {
+                audioSourceRemove.Play();
+            }
             dieController.isRemoving = true; // アニメーション開始時にフラグを設定
         }
 

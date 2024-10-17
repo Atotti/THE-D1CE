@@ -7,6 +7,7 @@ public class DieController : MonoBehaviour
     public GameObject character; // キャラクターの参照
     public bool isRemoving = false; // サイコロが消える途中かどうか
     public bool isSpawning = false; // サイコロがSpawn途中かどうか
+    public AudioSource audioSource; // AudioSourceの参照
 
     // サイコロの各面の数値を保持
     private int[] faceValues = new int[6];
@@ -23,6 +24,12 @@ public class DieController : MonoBehaviour
 
         // サイコロをランダムに回転させる
         RandomlyRotateDie();
+
+        // ゲームオブジェクトにアタッチされた AudioSource を取得
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
     }
 
     // サイコロをランダムに回転させるメソッド
@@ -92,6 +99,11 @@ public class DieController : MonoBehaviour
         // サイコロの転がり軸を計算
         Vector3 rollAxis = Vector3.Cross(Vector3.up, direction).normalized;
         float angle = 90.0f; // 90度回転
+
+        if (audioSource != null)
+        {
+            audioSource.Play();
+        }
 
         // 回転アニメーション
         float elapsedTime = 0;

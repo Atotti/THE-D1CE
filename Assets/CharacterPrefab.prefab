@@ -121,3 +121,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentDie: {fileID: 0}
+  gridSystem: {fileID: 0}
+  dieNumberText: {fileID: 0}
