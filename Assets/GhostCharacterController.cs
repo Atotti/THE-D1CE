@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GhostCharacterController : MonoBehaviour
 {
     public GameObject currentDie;  // 現在乗っているサイコロ
     public GridSystem gridSystem;  // GridSystemへの参照
     private bool isRolling = false; // サイコロが転がり中かどうか
-    public Text dieNumberText; // UIテキストの参照
+    public TMP_Text dieNumberText; // UIテキストの参照
     private float canMoveHeigh = 0.5f; // 移動可能な高低差
 
     void Start()
@@ -14,7 +15,7 @@ public class GhostCharacterController : MonoBehaviour
         // タグを使ってTextオブジェクトを取得
         if (dieNumberText == null)
         {
-            dieNumberText = GameObject.FindGameObjectWithTag("DieNumberText").GetComponent<Text>();
+            dieNumberText = GameObject.FindGameObjectWithTag("DieNumberText").GetComponent<TMP_Text>();
         }
     }
 
@@ -61,22 +62,9 @@ public class GhostCharacterController : MonoBehaviour
         {
             float characterHeightOffset = currentDie.transform.localScale.y / 2 + 1.0f;
             transform.position = currentDie.transform.position + new Vector3(0, characterHeightOffset, 0);
-
-            // サイコロの数の目を取得してUIテキストを更新
-            DieController dieController = currentDie.GetComponent<DieController>();
-            if (dieController != null)
-            {
-                int dieNumber = dieController.GetDieNumber();
-                dieNumberText.text = "Current Die Number: " + dieNumber;
-            }
-        } else
-        {
-            dieNumberText.text = "Not on a die";
         }
 
-        dieNumberText.text += "\nTime: " + gridSystem.nowTime;
-        dieNumberText.text += "\nScore: " + gridSystem.score;
-        dieNumberText.text += "\nSpawnRate: " + gridSystem.spawnRate;
+        UpdateText();
 
         transform.position = new Vector3(transform.position.x, Mathf.Max(transform.position.y - 1f, 0f), transform.position.z);
     }
@@ -245,4 +233,27 @@ public class GhostCharacterController : MonoBehaviour
         return characterPosition.x >= gridMinX && characterPosition.x <= gridMaxX &&
             characterPosition.z >= gridMinZ && characterPosition.z <= gridMaxZ;
     }
+
+    private void UpdateText()
+    {
+        if (currentDie != null)
+        {
+            // サイコロの数の目を取得してUIテキストを更新
+            DieController dieController = currentDie.GetComponent<DieController>();
+            if (dieController != null)
+            {
+                int dieNumber = dieController.GetDieNumber();
+                dieNumberText.text = "<color=#FFFF00>Die:</color> <b>" + dieNumber + "</b>";
+            }
+        }
+        else
+        {
+            dieNumberText.text = "<color=#FFFF00>Die:</color><b>" + 0 + "</b>";
+        }
+
+        // 他の情報に色やスタイルを追加
+        dieNumberText.text += " <color=#00FF00>Time:</color> <b>" + (gridSystem.nowTime - 1.0f).ToString("F2") + "</b>";
+        dieNumberText.text += " <color=#00FFFF>Score:</color> <b>" + gridSystem.score.ToString("F0") + "</b>";
+    }
+
 }

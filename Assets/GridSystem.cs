@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class GridSystem : MonoBehaviour
 {
@@ -515,7 +516,7 @@ public class GridSystem : MonoBehaviour
                 Debug.Log("Game Over! All positions are occupied.");
                 CancelInvoke("PlaceRandomDiceWrapper");
                 CancelInvoke("UpdateSpawnRateOnTime");
-                ShowGameOverMenu(); // メニューを表示
+                LoadResultScene(); // リザルトシーンに移動
                 yield break; // コルーチンを停止
             }
             else{
@@ -525,12 +526,11 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    private void ShowGameOverMenu()
+    private System.Collections.IEnumerator LoadResultScene()
     {
-        if (gameOverMenu != null)
-        {
-            gameOverMenu.SetActive(true); // メニューを表示
-            Time.timeScale = 0; // ゲームを停止
-        }
+        // ここで30フレーム待機
+        yield return StartCoroutine(WaitForFrames(5 * 60));
+        ScoreManager.instance.UpdateScore(score); // スコアを一旦送信
+        SceneManager.LoadScene("Result"); // リザルトシーンに遷移
     }
 }
