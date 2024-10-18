@@ -15,8 +15,8 @@ public class GridSystem : MonoBehaviour
     public AudioSource audioSourceRemove;
 
     public float score = 0f; // 現在のスコア
-    public float spawnRate = 5f; // 現在のスポンレート
-    public float nowTime = 0f; // 現在時刻
+    public float spawnRate = 5.0f; // 現在のスポンレート
+    public float nowTime = 1.0f; // 現在時刻
 
     private Dictionary<Vector2Int, GameObject> diePositions = new Dictionary<Vector2Int, GameObject>(); // 使用済みの位置を記録する辞書
 
@@ -33,13 +33,13 @@ public class GridSystem : MonoBehaviour
 
         // 一定時間ごとにサイコロを生成する
         InvokeRepeating("PlaceRandomDiceWrapper", 0f, spawnRate); // 5秒ごとに実行
+        InvokeRepeating("UpdateSpawnRateOnTime", 60.0f, 60.0f);
     }
 
     void Update()
     {
         CheckMatchesAndRemove(); // 消える判定の呼び出し
         nowTime += Time.deltaTime; // 時間更新
-        UpdateSpawnRateOnTime(); // スポンレート更新(時間)
     }
 
     void CreateGrid()
@@ -459,20 +459,20 @@ public class GridSystem : MonoBehaviour
     }
 
     // スコア更新時に更新
-    public float UpdateSpawnRateOnScore()
+    void UpdateSpawnRateOnScore()
     {
         // スポンレート更新
         spawnRate = Mathf.Max(spawnRate - spawnRate * (Mathf.Sqrt(score) / scoreSpawnRate), 0.1f);
 
-        return spawnRate;
     }
 
     // 毎時間更新
-    public float UpdateSpawnRateOnTime()
+    void UpdateSpawnRateOnTime()
     {
         // スポンレート更新
-        spawnRate = spawnRate - spawnRate/(nowTime * timeSpawnRate);
-
-        return spawnRate;
+        if (nowTime * timeSpawnRate != 0)
+        {
+            spawnRate -= spawnRate/(nowTime * timeSpawnRate);
+        }
     }
 }
