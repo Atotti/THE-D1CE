@@ -22,12 +22,12 @@ public class GhostCharacterController : MonoBehaviour
                 dieNumberText = textObj.GetComponent<TMP_Text>();
                 if (dieNumberText == null)
                 {
-                    Debug.LogError("TMP_Text component not found on DieNumberText GameObject.");
+                    Debug.Log("TMP_Text component not found on DieNumberText GameObject.");
                 }
             }
             else
             {
-                Debug.LogError("GameObject with tag 'DieNumberText' not found.");
+                Debug.Log("GameObject with tag 'DieNumberText' not found.");
             }
         }
     }
@@ -62,7 +62,7 @@ public class GhostCharacterController : MonoBehaviour
             gridSystem = FindObjectOfType<GridSystem>();
             if (gridSystem == null)
             {
-                Debug.LogError("GridSystem is not found in the scene.");
+                Debug.Log("GridSystem is not found in the scene.");
             }
         }
 
@@ -86,7 +86,7 @@ public class GhostCharacterController : MonoBehaviour
     {
         if (gridSystem == null)
         {
-            Debug.LogError("GridSystem is not assigned.");
+            Debug.Log("GridSystem is not assigned.");
             return;
         }
 
@@ -249,8 +249,25 @@ public class GhostCharacterController : MonoBehaviour
     {
         if (dieNumberText == null)
         {
-            Debug.LogError("dieNumberText is null. Cannot update text.");
-            return;
+            Debug.Log("dieNumberText is null. Cannot update text.");
+
+            // タグを使ってTextオブジェクトを取得
+            if (dieNumberText == null)
+            {
+                GameObject textObj = GameObject.FindGameObjectWithTag("DieNumberText");
+                if (textObj != null)
+                {
+                    dieNumberText = textObj.GetComponent<TMP_Text>();
+                    if (dieNumberText == null)
+                    {
+                        Debug.Log("TMP_Text component not found on DieNumberText GameObject.");
+                    }
+                }
+                else
+                {
+                    Debug.Log("GameObject with tag 'DieNumberText' not found.");
+                }
+            }
         }
 
         if (currentDie != null)
