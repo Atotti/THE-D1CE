@@ -73,6 +73,10 @@ public class GhostCharacterController : MonoBehaviour
             dieNumberText.text = "Not on a die";
         }
 
+        dieNumberText.text += "\nTime: " + gridSystem.nowTime;
+        dieNumberText.text += "\nScore: " + gridSystem.score;
+        dieNumberText.text += "\nSpawnRate: " + gridSystem.spawnRate;
+
         transform.position = new Vector3(transform.position.x, Mathf.Max(transform.position.y - 1f, 0f), transform.position.z);
     }
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GridSystem : MonoBehaviour
 {
@@ -13,7 +14,16 @@ public class GridSystem : MonoBehaviour
     public AudioSource audioSourceSpawn; // AudioSourceの参照
     public AudioSource audioSourceRemove;
 
+    public float score = 0f; // 現在のスコア
+    public float spawnRate = 5f; // 現在のスポンレート
+    public float nowTime = 0f; // 現在時刻
+
     private Dictionary<Vector2Int, GameObject> diePositions = new Dictionary<Vector2Int, GameObject>(); // 使用済みの位置を記録する辞書
+
+    // スコア計算変数
+    private int scoreRate = 100;
+    private int scoreSpawnRate = 10000;
+    private float timeSpawnRate = 0.05f;
 
     void Start()
     {
@@ -22,12 +32,14 @@ public class GridSystem : MonoBehaviour
         PlaceCharacterOnRandomDie();
 
         // 一定時間ごとにサイコロを生成する
-        InvokeRepeating("PlaceRandomDiceWrapper", 0f, 5f); // 5秒ごとに実行
+        InvokeRepeating("PlaceRandomDiceWrapper", 0f, spawnRate); // 5秒ごとに実行
     }
 
     void Update()
     {
         CheckMatchesAndRemove(); // 消える判定の呼び出し
+        nowTime += Time.deltaTime; // 時間更新
+        UpdateSpawnRateOnTime(); // スポンレート更新(時間)
     }
 
     void CreateGrid()
@@ -237,7 +249,7 @@ public class GridSystem : MonoBehaviour
     }
 
     // 消える条件判定関数
-    void CheckMatchesAndRemove()
+    HashSet<GameObject> CheckMatchesAndRemove()
     {
         // 既にチェックしたサイコロを追跡するためのセット
         HashSet<GameObject> checkedDice = new HashSet<GameObject>();
@@ -256,7 +268,7 @@ public class GridSystem : MonoBehaviour
             // DFSで同じ目の隣接サイコロを探索
             DFS(die, dieNumber, connectedDice, checkedDice);
 
-            int matchCount = Mathf.Max(dieNumber, 2); // 1の場合は2に設定
+            int matchCount = dieNumber != 1 ? dieNumber : 999;
 
             if (connectedDice.Count >= matchCount)
             {
@@ -272,6 +284,8 @@ public class GridSystem : MonoBehaviour
         {
             StartCoroutine(RemoveDieAnimation(die));
         }
+
+        return toBeRemoved;
     }
 
     int GetDieNumberAtPosition(Vector2Int position)
@@ -309,6 +323,35 @@ public class GridSystem : MonoBehaviour
             {
                 audioSourceRemove.Play();
             }
+            if (!dieController.isRemoving)
+            {
+                dieController.isRemoving = true;
+
+                HashSet<GameObject> connectedDice = CheckMatchesAndRemove();
+                List<GameObject> diceList = connectedDice.ToList();
+
+                if (connectedDice.Count >= 2)
+                {
+                    GameObject sampleDie1 = diceList.FirstOrDefault();
+                    diceList.Remove(sampleDie1);
+                    GameObject sampleDie2 = diceList.FirstOrDefault();
+
+                    if (sampleDie1 != null && sampleDie2!= null && sampleDie1.transform.position.y == sampleDie2.transform.position.y)
+                    {
+                        // 一気に連結する場合のスコア更新
+                        UpdateScore(dieController.GetDieNumber(), connectedDice.Count);
+                    }
+                    else
+                    {
+                        UpdateScoreAdd(dieController.GetDieNumber());
+                    }
+                }
+                else
+                {
+                    // 多分異常動作
+                }
+            }
+
             dieController.isRemoving = true; // アニメーション開始時にフラグを設定
         }
 
@@ -388,5 +431,48 @@ public class GridSystem : MonoBehaviour
                 }
             }
         }
+    }
+
+    // 通常の消える時のスコア計算
+    public float UpdateScore(int dieNumber, int dieCount)
+    {
+        // スコア更新
+        score += dieNumber * scoreRate
+            + (dieCount - dieNumber) * dieNumber * scoreRate;
+
+        // スポンレート更新
+        UpdateSpawnRateOnScore();
+
+        return score;
+    }
+
+    // 後から繋げた時のスコア
+    public float UpdateScoreAdd(int dieNumber)
+    {
+        // スコア更新
+        score += dieNumber * scoreRate;
+
+        // スポンレート更新
+        UpdateSpawnRateOnScore();
+
+        return score;
+    }
+
+    // スコア更新時に更新
+    public float UpdateSpawnRateOnScore()
+    {
+        // スポンレート更新
+        spawnRate = Mathf.Max(spawnRate - spawnRate * (Mathf.Sqrt(score) / scoreSpawnRate), 0.1f);
+
+        return spawnRate;
+    }
+
+    // 毎時間更新
+    public float UpdateSpawnRateOnTime()
+    {
+        // スポンレート更新
+        spawnRate = spawnRate - spawnRate/(nowTime * timeSpawnRate);
+
+        return spawnRate;
     }
 }
