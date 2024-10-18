@@ -159,6 +159,10 @@ MonoBehaviour:
   characterPrefab: {fileID: 19588385245968726, guid: 8ee08d04ad5df46fbb2e97260b63420b, type: 3}
   audioSourceSpawn: {fileID: 1971475812}
   audioSourceRemove: {fileID: 1727410710}
+  gameOverMenu: {fileID: 0}
+  score: 0
+  spawnRate: 5
+  nowTime: 1
 --- !u!4 &457316128
 Transform:
   m_ObjectHideFlags: 0

@@ -14,6 +14,9 @@ public class GridSystem : MonoBehaviour
     public AudioSource audioSourceSpawn; // AudioSourceの参照
     public AudioSource audioSourceRemove;
 
+    public GameObject gameOverMenu; // メニューUIの参照
+
+
     public float score = 0f; // 現在のスコア
     public float spawnRate = 5.0f; // 現在のスポンレート
     public float nowTime = 1.0f; // 現在時刻
@@ -512,11 +515,22 @@ public class GridSystem : MonoBehaviour
                 Debug.Log("Game Over! All positions are occupied.");
                 CancelInvoke("PlaceRandomDiceWrapper");
                 CancelInvoke("UpdateSpawnRateOnTime");
+                ShowGameOverMenu(); // メニューを表示
+                yield break; // コルーチンを停止
             }
             else{
                 PlaceRandomDice(1, false); // 新しいサイコロを配置
                 yield return new WaitForSeconds(spawnRate); // 現在の spawnRate を使って次の呼び出しまで待機
             }
+        }
+    }
+
+    private void ShowGameOverMenu()
+    {
+        if (gameOverMenu != null)
+        {
+            gameOverMenu.SetActive(true); // メニューを表示
+            Time.timeScale = 0; // ゲームを停止
         }
     }
 }
