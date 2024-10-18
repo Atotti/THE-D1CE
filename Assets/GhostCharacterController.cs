@@ -160,10 +160,18 @@ public class GhostCharacterController : MonoBehaviour
 
         if (gridSystem.IsPositionOccupied(targetGridPosition))
         {
-            // キャラクターがサイコロに乗りなおす
             GameObject targetDie = gridSystem.GetDieAtPosition(targetGridPosition);
-            currentDie = targetDie;
-            transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
+            // 乗ろうとしているdieの高さが0.5f以下だったら登れる
+            if (targetDie.transform.position.y <= 0.5f)
+            {
+                // キャラクターがサイコロに乗りなおす
+                currentDie = targetDie;
+                transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
+            }
+            else
+            {
+                // 移動できないサウンド再生
+            }
         }
         else
         {
@@ -187,18 +195,33 @@ public class GhostCharacterController : MonoBehaviour
             // ターゲット位置に既にサイコロがある場合
             if (gridSystem.IsPositionOccupied(targetPosition))
             {
-                // キャラクターがサイコロに乗りなおす
-                GameObject targetDie = gridSystem.GetDieAtPosition(targetPosition);
-                currentDie = targetDie;
-                transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
+                {
+                    GameObject targetDie = gridSystem.GetDieAtPosition(targetPosition);
+
+                    // 乗ろうとしているDieとの高さの差が0.5f以下だったら移動できる
+                    if (Mathf.Abs(currentDie.transform.position.y - targetDie.transform.position.y) <= 0.5f)
+                    {
+                        currentDie = targetDie;
+                        transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
+                    }
+                    else
+                    {
+                        // 移動できないサウンド再生
+                    }
+                }
             }
-            else
+            else // ターゲット位置にサイコロが無い場合
             {
-                // 消える途中のサイコロは転がらないので移動できない
+                // 高さが0.5以下だったらGrid上に降りれる
+                if (transform.position.y <= 0.5f)
+                {
+                    transform.position = transform.position + direction * gridSystem.cellSize;
+                    currentDie = null;
+                }
             }
         } else
         {
-
+            // 多分エラーとして扱う
         }
     }
 
