@@ -73,7 +73,7 @@ public class GhostCharacterController : MonoBehaviour
             dieNumberText.text = "Not on a die";
         }
 
-        transform.position = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+        transform.position = new Vector3(transform.position.x, Mathf.Max(transform.position.y - 1f, 0f), transform.position.z);
     }
 
     void AttemptMove(Vector3 direction)
