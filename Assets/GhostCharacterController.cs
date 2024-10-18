@@ -192,7 +192,8 @@ public class GhostCharacterController : MonoBehaviour
                     GameObject targetDie = gridSystem.GetDieAtPosition(targetPosition);
 
                     // 乗ろうとしているDieとの高さの差がcanMoveHeigh以下だったら移動できる
-                    if (Mathf.Abs(currentDie.transform.position.y - targetDie.transform.position.y) <= canMoveHeigh)
+                    // 低い分にはいつでも移動可能
+                    if (currentDie.transform.position.y - targetDie.transform.position.y <= canMoveHeigh)
                     {
                         currentDie = targetDie;
                         transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
@@ -205,12 +206,9 @@ public class GhostCharacterController : MonoBehaviour
             }
             else // ターゲット位置にサイコロが無い場合
             {
-                // 高さがcanMoveHeigh以下だったらGrid上に降りれる
-                if (Mathf.Abs(transform.position.y - 0.1f) <= canMoveHeigh)
-                {
-                    transform.position = transform.position + direction * gridSystem.cellSize;
-                    currentDie = null;
-                }
+                // 低い分にはいつでも移動可能
+                transform.position = transform.position + direction * gridSystem.cellSize;
+                currentDie = null;
             }
         } else
         {
