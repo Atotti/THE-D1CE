@@ -161,8 +161,8 @@ public class GhostCharacterController : MonoBehaviour
         if (gridSystem.IsPositionOccupied(targetGridPosition))
         {
             GameObject targetDie = gridSystem.GetDieAtPosition(targetGridPosition);
-            // 乗ろうとしているdieの高さが0.5f以下だったら登れる
-            if (targetDie.transform.position.y <= 0.5f)
+            // 乗ろうとしているdieの高さの差が0.5f以下だったら登れる
+            if (Mathf.Abs(targetDie.transform.position.y - transform.position.y) <= 0.5f)
             {
                 // キャラクターがサイコロに乗りなおす
                 currentDie = targetDie;
@@ -170,7 +170,7 @@ public class GhostCharacterController : MonoBehaviour
             }
             else
             {
-                // 移動できないサウンド再生
+                // 高低差により移動できないサウンド再生
             }
         }
         else
@@ -206,7 +206,7 @@ public class GhostCharacterController : MonoBehaviour
                     }
                     else
                     {
-                        // 移動できないサウンド再生
+                        // 高低差により移動できないサウンド再生
                     }
                 }
             }
