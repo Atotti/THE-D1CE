@@ -8,6 +8,7 @@ public class GhostCharacterController : MonoBehaviour
     public GridSystem gridSystem;  // GridSystemへの参照
     private bool isRolling = false; // サイコロが転がり中かどうか
     public TMP_Text dieNumberText; // UIテキストの参照
+    private float displayedScore = 0; // 現在表示しているスコア（連続上昇アニメーション用）
     private float canMoveHeigh = 0.5f; // 移動可能な高低差
 
     void Start()
@@ -246,12 +247,39 @@ public class GhostCharacterController : MonoBehaviour
         }
         else
         {
-            dieNumberText.text = "<color=#FFFF00>Die:</color><b>" + 0 + "</b>";
+            dieNumberText.text = "<color=#FFFF00>Die:</color><b>0</b>";
         }
 
         // 他の情報に色やスタイルを追加
         dieNumberText.text += " <color=#00FF00>Time:</color> <b>" + (gridSystem.nowTime - 1.0f).ToString("F2") + "</b>";
-        dieNumberText.text += " <color=#00FFFF>Score:</color> <b>" + gridSystem.score.ToString("F0") + "</b>";
+        dieNumberText.text += " <color=#00FFFF>Score:</color> <b>" + displayedScore.ToString("F0") + "</b>";
+    }
+
+    public void OnScoreChanged(float newScore)
+    {
+        // スコアが変化した時にコルーチンをスタート
+        StartCoroutine(AnimateScoreIncrease(newScore));
+    }
+
+    private System.Collections.IEnumerator AnimateScoreIncrease(float targetScore)
+    {
+        float animationDuration = 3.0f; // アニメーションの長さ（秒）
+        float elapsedTime = 0f;
+        float initialScore = displayedScore;
+
+        // アニメーションの間、スコアを少しずつ増加
+        while (elapsedTime < animationDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / animationDuration);
+            displayedScore = Mathf.Lerp(initialScore, targetScore, t);
+            UpdateText(); // スコアの値が変わるたびにテキストを更新
+            yield return null;
+        }
+
+        // アニメーション終了後に最終スコアを設定
+        displayedScore = targetScore;
+        UpdateText();
     }
 
 }

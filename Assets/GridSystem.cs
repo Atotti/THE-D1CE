@@ -22,6 +22,8 @@ public class GridSystem : MonoBehaviour
     public float spawnRate = 5.0f; // 現在のスポンレート
     public float nowTime = 1.0f; // 現在時刻
 
+    private GameObject character;
+
     private Dictionary<Vector2Int, GameObject> diePositions = new Dictionary<Vector2Int, GameObject>(); // 使用済みの位置を記録する辞書
 
     // スコア計算変数
@@ -224,7 +226,7 @@ public class GridSystem : MonoBehaviour
             Vector3 characterPosition = selectedDie.transform.position + new Vector3(0, characterHeightOffset, 0);
 
             // キャラクターを生成
-            GameObject character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
+            character = Instantiate(characterPrefab, characterPosition, Quaternion.identity);
 
             // キャラクターに現在乗っているサイコロを設定
             GhostCharacterController characterController = character.GetComponent<GhostCharacterController>();
@@ -470,6 +472,13 @@ public class GridSystem : MonoBehaviour
         score += dieNumber * scoreRate
             + (dieCount - dieNumber) * dieNumber * scoreRate;
 
+        // UI 更新
+        GhostCharacterController ghostCharacterController = character.GetComponent<GhostCharacterController>();
+        if (ghostCharacterController != null)
+        {
+            ghostCharacterController.OnScoreChanged(score);
+        }
+
         // スポンレート更新
         UpdateSpawnRateOnScore();
 
@@ -481,6 +490,13 @@ public class GridSystem : MonoBehaviour
     {
         // スコア更新
         score += dieNumber * scoreRate;
+
+        // UI 更新
+        GhostCharacterController ghostCharacterController = character.GetComponent<GhostCharacterController>();
+        if (ghostCharacterController != null)
+        {
+            ghostCharacterController.OnScoreChanged(score);
+        }
 
         // スポンレート更新
         UpdateSpawnRateOnScore();
