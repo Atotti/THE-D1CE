@@ -16,7 +16,19 @@ public class GhostCharacterController : MonoBehaviour
         // タグを使ってTextオブジェクトを取得
         if (dieNumberText == null)
         {
-            dieNumberText = GameObject.FindGameObjectWithTag("DieNumberText").GetComponent<TMP_Text>();
+            GameObject textObj = GameObject.FindGameObjectWithTag("DieNumberText");
+            if (textObj != null)
+            {
+                dieNumberText = textObj.GetComponent<TMP_Text>();
+                if (dieNumberText == null)
+                {
+                    Debug.LogError("TMP_Text component not found on DieNumberText GameObject.");
+                }
+            }
+            else
+            {
+                Debug.LogError("GameObject with tag 'DieNumberText' not found.");
+            }
         }
     }
 
@@ -235,6 +247,12 @@ public class GhostCharacterController : MonoBehaviour
 
     private void UpdateText()
     {
+        if (dieNumberText == null)
+        {
+            Debug.LogError("dieNumberText is null. Cannot update text.");
+            return;
+        }
+
         if (currentDie != null)
         {
             // サイコロの数の目を取得してUIテキストを更新
