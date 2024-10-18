@@ -32,7 +32,9 @@ public class GridSystem : MonoBehaviour
         PlaceCharacterOnRandomDie();
 
         // 一定時間ごとにサイコロを生成する
-        InvokeRepeating("PlaceRandomDiceWrapper", 0f, spawnRate); // 5秒ごとに実行
+        StartCoroutine(SpawnDiceCoroutine());
+
+        // 1分ごとに生成スポン速度を上げる
         InvokeRepeating("UpdateSpawnRateOnTime", 60.0f, 60.0f);
     }
 
@@ -110,16 +112,40 @@ public class GridSystem : MonoBehaviour
             // サイコロを生成
             GameObject newDie = Instantiate(diePrefab, diePosition, Quaternion.identity);
 
-            Debug.Log($"サイコロ {i + 1} を配置しました: 位置 {randomPosition}");
-
-            diePositions.Add(randomPosition, newDie); // 位置とサイコロをマッピング
-
-            if (!init)
+            if (!CanPlaceDie(newDie))
             {
-                // アニメーションを開始
-                StartCoroutine(SpawnDiceAnimation(newDie));
+                Debug.Log($"サイコロ {i + 1} を配置しました: 位置 {randomPosition}");
+
+                diePositions.Add(randomPosition, newDie); // 位置とサイコロをマッピング
+
+                if (!init)
+                {
+                    // アニメーションを開始
+                    StartCoroutine(SpawnDiceAnimation(newDie));
+                }
+            }
+            else
+            {
+                Debug.Log($"生成に失敗しました");
+                Destroy(newDie);
             }
         }
+    }
+
+    private bool CanPlaceDie(GameObject die)
+    {
+        // 生成時にすでに削除判定を満たす場合、生成しない
+        DieController dieController = die.GetComponent<DieController>();
+        int dieNumber = dieController.GetDieNumber();
+        HashSet<GameObject> connectedDice = new HashSet<GameObject>();
+        HashSet<GameObject> checkedDice = new HashSet<GameObject>();
+        DFS(die, dieNumber, connectedDice, checkedDice);
+        int matchCount = dieNumber != 1 ? dieNumber : 999;
+        if (connectedDice.Count >= matchCount)
+        {
+            return false;
+        }
+        return true;
     }
 
     private System.Collections.IEnumerator SpawnDiceAnimation(GameObject die)
@@ -473,6 +499,24 @@ public class GridSystem : MonoBehaviour
         if (nowTime * timeSpawnRate != 0)
         {
             spawnRate -= spawnRate/(nowTime * timeSpawnRate);
+        }
+    }
+
+    private System.Collections.IEnumerator SpawnDiceCoroutine()
+    {
+        while (true)
+        {
+            if (diePositions.Count >= gridSizeX * gridSizeY)
+            {
+                // ゲームオーバー
+                Debug.Log("Game Over! All positions are occupied.");
+                CancelInvoke("PlaceRandomDiceWrapper");
+                CancelInvoke("UpdateSpawnRateOnTime");
+            }
+            else{
+                PlaceRandomDice(1, false); // 新しいサイコロを配置
+                yield return new WaitForSeconds(spawnRate); // 現在の spawnRate を使って次の呼び出しまで待機
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ public class GhostCharacterController : MonoBehaviour
     public GridSystem gridSystem;  // GridSystemへの参照
     private bool isRolling = false; // サイコロが転がり中かどうか
     public Text dieNumberText; // UIテキストの参照
+    private float canMoveHeigh = 0.5f; // 移動可能な高低差
 
     void Start()
     {
@@ -165,10 +166,10 @@ public class GhostCharacterController : MonoBehaviour
         if (gridSystem.IsPositionOccupied(targetGridPosition))
         {
             GameObject targetDie = gridSystem.GetDieAtPosition(targetGridPosition);
-            // 乗ろうとしているdieの高さの差が0.5f以下だったら登れる
-            if (Mathf.Abs(targetDie.transform.position.y - transform.position.y) <= 0.5f)
+            // 乗ろうとしているdieの高さの差がcanMoveHeigh以下だったら登れる
+            if (Mathf.Abs(targetDie.transform.position.y - transform.position.y) <= canMoveHeigh)
             {
-                // キャラクターがサイコロに乗りなおす
+                // キャラクターがサイコロに乗りなおす TODO: サイコロを押して動かす
                 currentDie = targetDie;
                 transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
             }
@@ -202,8 +203,8 @@ public class GhostCharacterController : MonoBehaviour
                 {
                     GameObject targetDie = gridSystem.GetDieAtPosition(targetPosition);
 
-                    // 乗ろうとしているDieとの高さの差が0.5f以下だったら移動できる
-                    if (Mathf.Abs(currentDie.transform.position.y - targetDie.transform.position.y) <= 0.5f)
+                    // 乗ろうとしているDieとの高さの差がcanMoveHeigh以下だったら移動できる
+                    if (Mathf.Abs(currentDie.transform.position.y - targetDie.transform.position.y) <= canMoveHeigh)
                     {
                         currentDie = targetDie;
                         transform.position = targetDie.transform.position + new Vector3(0, 1.0f, 0); // サイコロの上に移動
@@ -216,8 +217,8 @@ public class GhostCharacterController : MonoBehaviour
             }
             else // ターゲット位置にサイコロが無い場合
             {
-                // 高さが0.5以下だったらGrid上に降りれる
-                if (transform.position.y <= 0.5f)
+                // 高さがcanMoveHeigh以下だったらGrid上に降りれる
+                if (Mathf.Abs(transform.position.y - 0.1f) <= canMoveHeigh)
                 {
                     transform.position = transform.position + direction * gridSystem.cellSize;
                     currentDie = null;
