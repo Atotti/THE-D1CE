@@ -31,13 +31,14 @@ public class GridSystem : MonoBehaviour
     private int scoreSpawnRate = 10000;
     private float timeSpawnRate = 0.05f;
 
-    void Start()
+    System.Collections.IEnumerator Start()
     {
         CreateGrid();
-        for (int i=1; i< 16; i++)
-        {
-            PlaceRandomDice(1, true);
-        }
+
+        yield return StartCoroutine(WaitForFrames(30));
+        PlaceRandomDice(16, true);
+        yield return StartCoroutine(WaitForFrames(30));
+
         PlaceCharacterOnRandomDie();
 
         // 一定時間ごとにサイコロを生成する
@@ -545,10 +546,8 @@ public class GridSystem : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator LoadResultScene()
+    private void LoadResultScene()
     {
-        // ここで30フレーム待機
-        yield return StartCoroutine(WaitForFrames(5 * 60));
         ScoreManager.instance.UpdateScore(score); // スコアを一旦送信
         SceneManager.LoadScene("Result"); // リザルトシーンに遷移
     }

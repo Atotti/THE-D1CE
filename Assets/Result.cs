@@ -6,7 +6,7 @@ public class Result : MonoBehaviour
     // ゲームを開始するメソッド
     public void StartGame()
     {
-        // "MainGame" という名前のシーンをロード
+        // ゲームから再開
         SceneManager.LoadScene("MainGame");
     }
 

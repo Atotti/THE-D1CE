@@ -6,13 +6,8 @@ public class StartMenu : MonoBehaviour
     // ゲームを開始するメソッド
     public void StartGame()
     {
-        // "MainGame" という名前のシーンをロード
-        SceneManager.LoadScene("MainGame");
-    }
-
-    public void ViewRule()
-    {
-        SceneManager.LoadScene("ViewRule");
+        // "RuleAndName" という名前のシーンをロード
+        SceneManager.LoadScene("RuleAndName");
     }
 
     // ゲームを終了するメソッド（エディターやビルド時用）
