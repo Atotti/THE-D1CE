@@ -6,14 +6,14 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager instance; // シングルトンのインスタンス
     public float score = 0; // スコアの変数
-    public string playerName = "";
+    public string name = "";
 
     private string endpoint = "https://xi-server.ayutaso.com/result/";
 
     [System.Serializable]
     public class ResultData
     {
-        public string playerName;
+        public string name;
         public int score;
     }
 
@@ -33,7 +33,10 @@ public class ScoreManager : MonoBehaviour
 
     public void SetName(string player)
     {
-        playerName = player;
+        name = player;
+        Debug.Log($"1 {ScoreManager.instance.name}");
+        Debug.Log($"2 {name}");
+
     }
 
     // スコアを更新するメソッド
@@ -42,8 +45,9 @@ public class ScoreManager : MonoBehaviour
         score = value;
         // 名前と一緒にサーバーに送信
         ResultData data = new ResultData();
-        data.playerName = playerName;
-        data.score = (int)score; // DBはBIGINTなのでintにキャスト
+        data.name = ScoreManager.instance.name;
+        data.score = Mathf.RoundToInt(ScoreManager.instance.score);
+        Debug.Log($"UpdateScore {data.name} {data.score}");
 
         // コルーチンでPOSTリクエストを送信
         StartCoroutine(PostRequest(endpoint, data));
@@ -59,6 +63,7 @@ public class ScoreManager : MonoBehaviour
     {
         // JSONにシリアライズ
         string jsonData = JsonUtility.ToJson(resultData);
+        Debug.Log("Serialized JSON: " + jsonData);
 
         // JSONデータをバイト配列に変換
         byte[] postData = System.Text.Encoding.UTF8.GetBytes(jsonData);

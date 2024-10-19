@@ -1447,7 +1447,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7ea087a2649f1c4f9153d6a211463f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 0}
+  inputField: {fileID: 566379805}
 --- !u!1 &947810276
 GameObject:
   m_ObjectHideFlags: 0
@@ -1829,7 +1829,7 @@ VideoPlayer:
   m_TargetAudioSources:
   - {fileID: 0}
   m_DirectAudioVolumes:
-  - 1
+  - 0.03
   m_Url: 
   m_EnabledAudioTracks: 01
   m_DirectAudioMutes: 00
