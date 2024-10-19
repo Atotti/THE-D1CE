@@ -34,7 +34,10 @@ public class GridSystem : MonoBehaviour
     void Start()
     {
         CreateGrid();
-        PlaceRandomDice(16, true);
+        for (int i=1; i< 16; i++)
+        {
+            PlaceRandomDice(1, true);
+        }
         PlaceCharacterOnRandomDie();
 
         // 一定時間ごとにサイコロを生成する
