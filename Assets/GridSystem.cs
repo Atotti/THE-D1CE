@@ -284,6 +284,62 @@ public class GridSystem : MonoBehaviour
         }
     }
 
+    // ハッピーワン
+    public bool HappyOne(GameObject currentDie)
+    {
+        DieController currentDieController = currentDie.GetComponent<DieController>();
+        if (currentDieController.GetDieNumber() == 1)
+        {
+            List<GameObject> removingDieList = new List<GameObject>();
+            // 消える途中のサイコロ全取得
+            foreach (GameObject die in diePositions.Values)
+            {
+                DieController dieController = die.GetComponent<DieController>();
+                if (dieController.isRemoving == true)
+                {
+                    removingDieList.Add(die);
+                }
+            }
+
+            // currentDieと隣接しているものがあるかチェック
+            Vector2Int onePosition = GetGridPosition(currentDie.transform.position);
+
+            // 上下左右の方向
+            Vector2Int[] directions = new Vector2Int[]
+            {
+                new Vector2Int(1, 0),
+                new Vector2Int(-1, 0),
+                new Vector2Int(0, 1),
+                new Vector2Int(0, -1)
+            };
+
+            foreach (Vector2Int dir in directions)
+            {
+                // one に隣接するDieを取得
+                Vector2Int aroundOnePosition = onePosition + dir;
+                if (diePositions.TryGetValue(aroundOnePosition, out GameObject aroundDie))
+                {
+                    // 消える途中か判定
+                    if (removingDieList.Contains(aroundDie))
+                    {
+                        // 1の目のDieを全て削除
+                        foreach (GameObject oneDie in diePositions.Values)
+                        {
+                            DieController dieController = oneDie.GetComponent<DieController>();
+                            int dieNumber = dieController.GetDieNumber();
+                            if (dieNumber == 1 && currentDieController.GetDieNumber() == 1)
+                            {
+                                StartCoroutine(RemoveDieAnimation(oneDie));
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     // 消える条件判定関数
     HashSet<GameObject> CheckMatchesAndRemove()
     {

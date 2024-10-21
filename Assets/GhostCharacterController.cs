@@ -150,6 +150,8 @@ public class GhostCharacterController : MonoBehaviour
                     dieController.character = this.gameObject; // キャラクターの参照を設定
                     dieController.RollDie(direction, () => {
                         isRolling = false; // 転がり終了
+                        // ハッピーワン処理の呼び出し
+                        gridSystem.HappyOne(currentDie);
                     });
                     gridSystem.UpdateDiePosition(currentDie, targetPosition);
                 }
@@ -317,4 +319,11 @@ public class GhostCharacterController : MonoBehaviour
         UpdateText();
     }
 
+    private System.Collections.IEnumerator WaitForFrames(int frameCount)
+    {
+        for (int i = 0; i < frameCount; i++)
+        {
+            yield return null;
+        }
+    }
 }
