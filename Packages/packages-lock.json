@@ -135,6 +135,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.uphash.uni-rq-decoder": {
+      "version": "https://github.com/wallstudio/UniQRCode.git?path=QRCodeSource/QRCodeDecoder/QRCodeDecoderLibrary",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "3b0993f3c7cdcc8460da486d5fc6977508e28f03"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
