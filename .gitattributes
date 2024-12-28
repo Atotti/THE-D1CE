@@ -2,3 +2,4 @@ Assets/Fonts/NotoSansJP-Medium[[:space:]]SDF.asset filter=lfs diff=lfs merge=lfs
 Assets/Fonts/RampartOne-Regular filter=lfs diff=lfs merge=lfs -text
 SDF.asset filter=lfs diff=lfs merge=lfs -text
 Assets/Fonts/RampartOne-Regular[[:space:]]SDF.asset filter=lfs diff=lfs merge=lfs -text
+UIElementsSchema/* linguist-vendored
