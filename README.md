@@ -1,8 +1,8 @@
-# ゲーム紹介 - The D1CE
+# [ゲーム紹介 - The D1CE](https://xi-server.ayutaso.com/about/)
 
 ## 🎲 **ゲーム紹介**
 
-このゲーム『The D1CE』は、サイコロを転がしてプレイする**アクションパズルゲーム**です。以下はデモプレイの動画です。
+このゲーム『The D1CE』は、サイコロを転がしてプレイする**アクションパズルゲーム**です。
 
 [![デモプレイ動画](https://img.youtube.com/vi/2owRg0lChZI/0.jpg)](https://www.youtube.com/embed/2owRg0lChZI)
 
@@ -30,7 +30,9 @@
 
 - **PCの矢印ボタン**を使ってサイコロを転がします。
 
-[**▶️ ランキングを見る**](../ranking/)
+[**▶️ ランキングを見る**](https://xi-server.ayutaso.com/ranking/)
+
+[**Webデモ**](https://xi-server.ayutaso.com/)
 
 ---
 
